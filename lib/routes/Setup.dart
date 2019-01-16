@@ -1,0 +1,112 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:open_ag_mobile/routes/Home.dart';
+
+
+class Setup extends StatefulWidget {
+  @override
+  SetupState createState() => SetupState();
+}
+
+
+enum ConnectionState { WAITING, SEARCHING, FOUND }
+class SetupState extends State<Setup> {
+  ConnectionState _connectionState = ConnectionState.WAITING;
+
+  void finishSetup(){
+    //TODO save contents of computer
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+  }
+
+  void startSearching(){
+    setState(() {_connectionState = ConnectionState.SEARCHING;});
+
+    //TODO implement
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        setState(() {_connectionState = ConnectionState.FOUND;});
+      });
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+
+
+    Widget appBar = AppBar(
+      elevation: 0.5,
+      backgroundColor: Colors.white,
+      title: Text(
+          _connectionState == ConnectionState.WAITING ? "Turn on your Food Computer" :
+          _connectionState == ConnectionState.SEARCHING ? "Searching for a Food Computer" :
+          "Food Computer found!",  //FOUND
+          style: TextStyle(color: Colors.black),
+      ),
+      centerTitle: true,
+    );
+
+    Widget searchingIndicator = Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        CupertinoActivityIndicator(),
+        Padding(padding: const EdgeInsets.only(left: 12.0),
+          child: Text("Searching for a Food Computer", style: TextStyle(fontSize: 14.0)),
+        )
+      ],
+    );
+
+    Widget bottomContent = _connectionState == ConnectionState.WAITING ? CupertinoButton(child: Text("Next"), onPressed: startSearching):
+                           _connectionState == ConnectionState.SEARCHING ? searchingIndicator :
+                           CupertinoButton(child: Text("Finish"), onPressed: finishSetup);
+
+    Widget bottomBar = Container(
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.black26, width: 1.0))),
+      height: 100.0,
+      child: bottomContent,
+    );
+
+    Widget textContent = Padding(
+      padding: const EdgeInsets.all(22.0),
+      child: Text(
+         _connectionState == ConnectionState.WAITING ? "Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer" :
+         _connectionState == ConnectionState.SEARCHING ? "Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer " :
+         "Food Computer found Food Computer found! Food Computer found! Food Computer found! Food Computer found! Food Computer found! Food Computer found!",  //FOUND
+         style: TextStyle(color: Colors.black, fontSize: 16.0),
+      )
+    );
+
+    Widget glyphContent = Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(top: 24.0),
+          child: Image.asset("assets/computer.png", width: 200.0),
+        ),
+        Positioned(top: 0.0, right: 0.0,
+            child: Material(color: Theme.of(context).accentColor, borderRadius: BorderRadius.circular(50.0),
+              child: Padding(padding: const EdgeInsets.all(10.0),
+                child: Container(width: 80.0, height: 80.0,
+                  child: Image.asset(
+                      _connectionState == ConnectionState.WAITING ? "assets/plugin.png" :
+                      _connectionState == ConnectionState.SEARCHING ? "assets/searching.png" :
+                      "assets/check.png",  //FOUND
+                      width: 80.0),
+                ),
+              ),
+            )
+        ),
+      ],
+    );
+
+    Widget contentStack = Stack(children: <Widget>[textContent, Center(child: glyphContent)]);
+
+    return Scaffold(
+        resizeToAvoidBottomPadding: false,
+        appBar: appBar,
+        body: contentStack,
+        bottomNavigationBar: bottomBar
+    );
+  }
+}

@@ -1,91 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:open_ag_mobile/routes/CreateRecipe.dart';
+import 'package:open_ag_mobile/routes/Home.dart';
+import 'package:open_ag_mobile/routes/Onboarding.dart';
+import 'package:open_ag_mobile/routes/RecipeList.dart';
+import 'package:open_ag_mobile/routes/Setup.dart';
+import 'package:screentheme/screentheme.dart';
 
-void main() => runApp(new OpenAgMobile());
+void main() {
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  ScreenTheme.darkStatusBar();
+  ScreenTheme.darkNavigationBar();
+  ScreenTheme.updateNavigationBarColor(Colors.grey[50]);
+  runApp(OpenAgMobileApp());
+}
 
-class OpenAgMobile extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'OpenAg Mobile',
-      theme: new ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: new MyHomePage(title: 'OpenAg Mobile'),
+class OpenAgMobileApp extends StatelessWidget {
+  void checkExistingFoodComputer(){
+
+  }
+
+
+  @override Widget build(BuildContext context) {
+    final Color primary = Colors.teal;
+
+    //Theme data
+    ThemeData theme = ThemeData(
+      brightness: Brightness.light,
+      primaryColor: primary,
+      accentColor: Color.lerp(primary, Colors.white, 0.5),
+
+
+      //button theme
+      highlightColor: Colors.transparent,
+      splashColor: Colors.black26,
+      disabledColor: Colors.black12,
+      toggleableActiveColor: primary,
+      cursorColor: primary,
+      buttonColor: primary,
+      primaryIconTheme: IconThemeData(color: Colors.black),
+
+      //card & canvas theme
+      cardColor: Colors.grey[50],
+//      canvasColor: Colors.transparent,
+
+      //enlarge icons for visibility
+      iconTheme: IconThemeData(size: 24.0),
+    );
+    return MaterialApp(
+        title: "OpenAg Mobile",
+        color: Colors.grey[200],
+        home: Onboarding(),
+        theme: theme,
+        debugShowCheckedModeBanner: false
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return new Scaffold(
-      appBar: new AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: new Text(widget.title),
-      ),
-      body: new Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: new Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug paint" (press "p" in the console where you ran
-          // "flutter run", or select "Toggle Debug Paint" from the Flutter tool
-          // window in IntelliJ) to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              'You have pushed the button this many times:',
-            ),
-            new Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: new Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}

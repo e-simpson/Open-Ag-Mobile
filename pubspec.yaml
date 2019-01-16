@@ -12,6 +12,23 @@ dependencies:
 
   # Packages
   cupertino_icons: ^0.1.2
+  intl: ^0.15.6
+#  dynamic_theme: ^1.0.0
+  screentheme: ^0.0.2
+  carousel_slider: ^1.0.1
+  flutter_swiper: ^1.1.4
+  flutter_page_indicator: ^0.0.3
+
+
+#  path_provider: ^0.4.0
+#  vibrate: ^0.0.4
+#  zoomable_image: ^1.2.0
+  shared_preferences: ^0.4.1
+#  url_launcher: ^3.0.1
+#  advanced_share: any
+#  share: ^0.4.0
+  simple_permissions: ^0.1.5
+#  launch_review: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -19,3 +36,13 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+
+  assets:
+    - assets/agriculture.png
+    - assets/research.png
+    - assets/crops.png
+    - assets/computer.png
+    - assets/plugin.png
+    - assets/searching.png
+    - assets/check.png
