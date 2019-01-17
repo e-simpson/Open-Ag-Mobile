@@ -6,6 +6,7 @@ import 'package:open_ag_mobile/routes/Home.dart';
 import 'package:open_ag_mobile/routes/Onboarding.dart';
 import 'package:open_ag_mobile/routes/RecipeList.dart';
 import 'package:open_ag_mobile/routes/Setup.dart';
+import 'package:open_ag_mobile/routes/ViewRecipe.dart';
 import 'package:screentheme/screentheme.dart';
 
 void main() {
@@ -30,6 +31,7 @@ class OpenAgMobileApp extends StatelessWidget {
       brightness: Brightness.light,
       primaryColor: primary,
       accentColor: Color.lerp(primary, Colors.white, 0.5),
+      primaryColorBrightness: Brightness.light,
 
 
       //button theme
@@ -52,6 +54,14 @@ class OpenAgMobileApp extends StatelessWidget {
         title: "OpenAg Mobile",
         color: Colors.grey[200],
         home: Onboarding(),
+        routes: {
+          "/onboarding": (_) => Onboarding(),
+          "/setup": (_) => Setup(),
+          "/home": (_) => Home(),
+          "/recipes": (_) => RecipeList(),
+          "/createrecipe": (_) => CreateRecipe(),
+          "/viewrecipe": (_) => ViewRecipe(),
+        },
         theme: theme,
         debugShowCheckedModeBanner: false
     );

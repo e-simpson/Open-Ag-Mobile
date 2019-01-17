@@ -36,7 +36,7 @@ class OnboardingState extends State<Onboarding> {
             margin: EdgeInsets.symmetric(horizontal: 2.0),
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: i == _index ? Color.fromRGBO(0, 0, 0, 0.9) : Color.fromRGBO(0, 0, 0, 0.4)
+                color: i == _index ? Color.fromRGBO(0, 0, 0, 0.8) : Color.fromRGBO(0, 0, 0, 0.2)
             ),
           );
         })
@@ -95,15 +95,17 @@ class OnboardingState extends State<Onboarding> {
       color: Theme.of(context).primaryColor,
     );
 
-    Widget body = Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        logoAndTitle,
-        carousel,
-//        car,
-        setupButton
-      ],
+    Widget body = Padding(
+      padding: const EdgeInsets.only( top: 26.0, bottom: 26.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          logoAndTitle,
+          carousel,
+          setupButton
+        ],
+      )
     );
 
     return Scaffold(
