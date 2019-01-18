@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:open_ag_mobile/routes/Home.dart';
+import 'package:open_ag_mobile/tools/constants.dart';
+import 'package:open_ag_mobile/tools/ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Setup extends StatefulWidget {
@@ -14,8 +16,10 @@ class SetupState extends State<Setup> {
   ConnectionState _connectionState = ConnectionState.WAITING;
   TextEditingController nameController = TextEditingController();
 
-  void finishSetup(){
+  void finishSetup() async {
     //TODO save contents of computer
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(foodComputerNamePreference, nameController.text);
     Navigator.pushNamedAndRemoveUntil(context, "/home", (_) => false);
   }
 
@@ -35,37 +39,41 @@ class SetupState extends State<Setup> {
 
   @override
   Widget build(BuildContext context) {
+    Color primary = Theme.of(context).primaryColor;
 
-    Widget appBar = AppBar(
+    Widget appBar = CupertinoNavigationBar(
+//      middle: Text(""),
 //      brightness: Brightness.light,
-      elevation: 0.5,
-      backgroundColor: Colors.white,
-      title: Text(
+//      elevation: 0.5,
+//      backgroundColor: Colors.white,
+      actionsForegroundColor: primary,
+      middle: Text(
           _connectionState == ConnectionState.WAITING ? "Turn on your Food Computer" :
           _connectionState == ConnectionState.SEARCHING ? "Searching for a Food Computer" :
           "Food Computer found",  //FOUND
           style: TextStyle(color: Colors.black),
       ),
-      centerTitle: true,
     );
 
-    Widget searchingIndicator = Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        CupertinoActivityIndicator(),
-        Padding(padding: const EdgeInsets.only(left: 12.0),
-          child: Text("Searching...", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+    Widget searchingIndicator = Container(color: Colors.grey[100],
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            CupertinoActivityIndicator(),
+            Padding(padding: const EdgeInsets.only(left: 12.0),
+              child: Text("Searching...", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+            )
+          ],
         )
-      ],
     );
 
-    Widget bottomContent = _connectionState == ConnectionState.WAITING ? CupertinoButton(child: Text("Next"), onPressed: startSearching):
+    Widget bottomContent = _connectionState == ConnectionState.WAITING ? FullWidthCupertinoButton("Next", startSearching, primary) : // CupertinoButton(child: Text("Next", style: Theme.of(context).textTheme.button), borderRadius: BorderRadius.circular(0.0), onPressed: startSearching) :
                            _connectionState == ConnectionState.SEARCHING ? searchingIndicator :
-                           CupertinoButton(child: Text("Finish"), onPressed: nameController.text.isNotEmpty ? finishSetup : null);
+                           FullWidthCupertinoButton("Finish", nameController.text.isNotEmpty ? finishSetup : null, primary); // CupertinoButton(child: Text("Finish"), onPressed: nameController.text.isNotEmpty ? finishSetup : null);
 
     Widget bottomBar = Container(
-      decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.black26, width: 1.0))),
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.black54, width: 0.1))),
       height: 100.0,
       child: bottomContent,
     );

@@ -21,7 +21,7 @@ class FoodComputer {
     return map;
   }
 
-//  FoodComputer();
+  FoodComputer();
 
   FoodComputer.fromMap(Map<String, dynamic> map) {
     id = map[columnId];

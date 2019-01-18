@@ -5,30 +5,34 @@ final String tableUser = 'user';
 final String columnId = '_id';
 final String columnCreatorUserId = 'creatorUserId';
 final String columnTimestamp = 'timestamp';
+final String columnName = 'name';
 final String columnRecipe = 'recipe';
 
 class Recipe {
   int id;
   int creatorUserId;
-  double timestamp;
+  int timestamp;
+  String name;
   String recipe;
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       columnCreatorUserId: creatorUserId,
       columnTimestamp: timestamp,
+      columnName: name,
       columnRecipe: recipe
     };
     if (id != null) map[columnId] = id;
     return map;
   }
 
-//  FoodComputer();
+  Recipe();
 
   Recipe.fromMap(Map<String, dynamic> map) {
     id = map[columnId];
     creatorUserId = map[columnCreatorUserId];
     timestamp = map[columnTimestamp];
+    name = map[columnName];
     recipe = map[columnRecipe];
   }
 }
@@ -43,8 +47,9 @@ class RecipeProvider {
             create table $tableUser ( 
               $columnId integer primary key autoincrement, 
               $columnCreatorUserId integer not null,
-              $columnTimestamp real not null,
-              $columnRecipe text
+              $columnTimestamp integer not null,
+              $columnName text not null,
+              $columnRecipe text not null
             )
             ''');
         });

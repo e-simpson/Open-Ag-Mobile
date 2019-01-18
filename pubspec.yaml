@@ -17,8 +17,11 @@ dependencies:
 #  dynamic_theme: ^1.0.0
   screentheme: ^0.0.2
   carousel_slider: ^1.0.1
-  flutter_swiper: ^1.1.4
-  flutter_page_indicator: ^0.0.3
+  flutter_swiper: ^1.1.4  # remove
+#  flutter_page_indicator: ^0.0.3 # remove?
+  pull_to_refresh: ^1.1.6
+  percent_indicator: ^1.0.12
+
 
 
 #  path_provider: ^0.4.0
@@ -47,3 +50,5 @@ flutter:
     - assets/plugin.png
     - assets/searching.png
     - assets/check.png
+
+    - assets/arugula.png

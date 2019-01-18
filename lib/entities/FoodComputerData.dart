@@ -19,7 +19,7 @@ class FoodComputerData {
   int foodComputerId;
   int recipeId;
   int cycle;
-  double timestamp;
+  int timestamp;
   double temperature;
   double phLevel;
   double nutrientALevel;
@@ -43,7 +43,7 @@ class FoodComputerData {
     return map;
   }
 
-//  FoodComputer();
+  FoodComputerData();
 
   FoodComputerData.fromMap(Map<String, dynamic> map) {
     id = map[columnId];
@@ -72,7 +72,7 @@ class FoodComputerDataProvider {
               $columnFoodComputerId integer,
               $columnRecipeId integer,
               $columnCycle text,
-              $columnTimestamp real,
+              $columnTimestamp integer,
               $columnTemperature real,
               $columnPhLevel real,
               $columnNutrientALevel real,
