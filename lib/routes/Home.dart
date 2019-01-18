@@ -6,6 +6,7 @@ import 'package:open_ag_mobile/entities/Recipe.dart';
 import 'package:open_ag_mobile/routes/RecipeList.dart';
 import 'package:open_ag_mobile/tools/ui.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:intl/intl.dart';
 
 
 class Home extends StatefulWidget {
@@ -19,7 +20,6 @@ class HomeState extends State<Home> {
   FoodComputer foodComputer;
   Recipe activeRecipe;
   FoodComputerData latestFoodComputerData;
-
 
   void loadFoodComputer(){
     //TODO redo
@@ -44,12 +44,21 @@ class HomeState extends State<Home> {
     latestFoodComputerData.temperature = 27;
     latestFoodComputerData.phLevel = 4.7;
   }
+  Future<void> refreshAll() async {
+    loadFoodComputer();
+    loadActiveRecipe();
+    refreshFoodComputerData();
+    await Future.delayed(const Duration(milliseconds: 500));
+    setState(() {});
+    return;
+  }
 
   @override
   void initState() {
     super.initState();
     loadFoodComputer();
     loadActiveRecipe();
+    refreshFoodComputerData();
   }
 
   void openRecipeList(){
@@ -75,10 +84,11 @@ class HomeState extends State<Home> {
               Padding(padding: const EdgeInsets.only(top: 16.0)),
               Row(
                 children: <Widget>[
-                  Expanded(child: Text(foodComputer.title, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 22.0), textAlign: TextAlign.start)),
+                  Expanded(child: Text(foodComputer.title, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20.0), textAlign: TextAlign.start)),
                   IconButton(icon: Icon(Icons.settings), color: Colors.grey, onPressed: (){})
                 ],
               ),
+              Padding(padding: const EdgeInsets.only(top: 4.0)),
 
               Center(child: Stack(
                 alignment: Alignment.center,
@@ -88,6 +98,14 @@ class HomeState extends State<Home> {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(100.0),
                   ),
+                  CircularPercentIndicator(
+                    progressColor: primary,
+                    animation: true, animationDuration: 1000,
+                    percent: latestFoodComputerData.cycle/30,
+                    backgroundColor: Colors.transparent,
+                    radius: 215.0,
+                    lineWidth: 8.0,
+                  ),
                   Column(children: <Widget>[
                     Image.asset("assets/" + activeRecipe.name.toLowerCase() + ".png", width: 250.0),
                     Padding(padding: const EdgeInsets.only(top: 8.0)),
@@ -96,24 +114,31 @@ class HomeState extends State<Home> {
                 ],
               )),
 
-
+              Center(child: Text("Day 10 of 20", style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic)))
             ],
           ),
         )
     );
 
 
-    Widget stats = Expanded(child: Container( alignment: Alignment.center,
-      child: Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(padding: const EdgeInsets.only(left: 10.0)),
-          NamedProgressBar("Water", 20, 60, Colors.blue, "Empty", "Full"),
-          NamedProgressBar("Temperature", 38, 60, Colors.red, "-20C", "40C"),
-          NamedProgressBar("PH Level", 24, 60, Colors.deepPurpleAccent, "Empty", "Full"),
-          NamedProgressBar("Light", 45, 60, Colors.orange, "Low", "High"),
-          Padding(padding: const EdgeInsets.only(left: 10.0)),
-        ],
-      ))
+    Widget stats = Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        NamedProgressBar("Water", 20, 60, Colors.blue, "Empty", "Full"),
+        NamedProgressBar("Temperature", 38, 60, Colors.red, "-20C", "40C"),
+        NamedProgressBar("PH Level", 24, 60, Colors.deepPurpleAccent, "Empty", "Full"),
+        NamedProgressBar("Light", 45, 60, Colors.orange, "Low", "High"),
+        Text("Updated " + DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(latestFoodComputerData.timestamp)), style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic))
+      ],
+    );
+
+    Widget refreshableStats = Expanded(child:
+      Container(child:
+        RefreshIndicator(
+          color: primary,
+          onRefresh: refreshAll,
+          child: ListView(children: <Widget>[stats]),		// scroll view
+        )
+      )
     );
 
 
@@ -124,7 +149,8 @@ class HomeState extends State<Home> {
     Widget home = Column(children: <Widget>[
       header,
       Divider(height:0.0, color: Colors.black38),
-      stats
+      refreshableStats,
+//      Expanded(child: Container(child: stats))
     ]);
 
     Widget bottomBar = BottomNavigationBar(
