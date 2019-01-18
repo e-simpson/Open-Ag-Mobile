@@ -16,7 +16,7 @@ Widget FullWidthCupertinoButton(String text, Function onPressed, Color color){
 }
 
 Widget NamedProgressBar(String name, int value, int max, Color color, String minText, String maxText){
-  return Padding(padding: const EdgeInsets.only(left: 34.0, right: 34.0, top: 2.0, bottom: 12.0),
+  return Padding(padding: const EdgeInsets.only(left: 34.0, right: 34.0, top: 2.0, bottom: 46.0),
     child: Column(
       children: <Widget>[
         Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.start,

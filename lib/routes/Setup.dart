@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:open_ag_mobile/components/RoundedTextField.dart';
 import 'package:open_ag_mobile/tools/constants.dart';
 import 'package:open_ag_mobile/tools/ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,10 +43,6 @@ class SetupState extends State<Setup> {
     Color primary = Theme.of(context).primaryColor;
 
     Widget appBar = CupertinoNavigationBar(
-//      middle: Text(""),
-//      brightness: Brightness.light,
-//      elevation: 0.5,
-//      backgroundColor: Colors.white,
       actionsForegroundColor: primary,
       middle: Text(
           _connectionState == ConnectionState.WAITING ? "Turn on your Food Computer" :
@@ -119,21 +116,9 @@ class SetupState extends State<Setup> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text("Food Computer Name", style: TextStyle(fontWeight: FontWeight.bold, )),
                   ),
-                  CupertinoTextField(
-                    placeholder: "John's Food Computer",
-                    controller: nameController,
-                    textCapitalization: TextCapitalization.words,
-                    prefix: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(Icons.computer, color: Colors.grey),
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1.0, color: CupertinoColors.inactiveGray,),
-                      borderRadius: BorderRadius.circular(7.0),
-                    ),
-                  ),
+                  RoundedTextField(controller: nameController, icon: Icons.computer, placeholder: "John's Food Computer"),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 68.0),
                     child: Text("192.12.1.30", style: TextStyle(color: Colors.grey)),
                   ),
                 ],

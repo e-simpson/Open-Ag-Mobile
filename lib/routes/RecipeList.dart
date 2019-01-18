@@ -29,6 +29,7 @@ class RecipeListState extends State<RecipeList> {
 
     return Scaffold(
       resizeToAvoidBottomPadding: false,
+      backgroundColor: Colors.grey[100],
       appBar: appBar,
     );
   }

@@ -15,16 +15,14 @@ class CreateRecipeState extends State<CreateRecipe> {
   @override
   Widget build(BuildContext context) {
 
-    Widget appBar = AppBar(
-      elevation: 1.0,
+    Widget recipeTopBar = CupertinoNavigationBar(
       backgroundColor: Colors.white,
-      title: Text( "New Recipe", style: TextStyle(color: Colors.black)),
-      centerTitle: true
+      middle: Text("New Growth Recipe"),
     );
 
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      appBar: appBar,
+      appBar: recipeTopBar,
     );
   }
 }

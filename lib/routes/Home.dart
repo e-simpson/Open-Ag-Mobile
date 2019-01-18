@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:open_ag_mobile/components/RecipeRow.dart';
+import 'package:open_ag_mobile/components/RoundedTextField.dart';
 import 'package:open_ag_mobile/entities/FoodComputer.dart';
 import 'package:open_ag_mobile/entities/FoodComputerData.dart';
 import 'package:open_ag_mobile/entities/Recipe.dart';
+import 'package:open_ag_mobile/routes/CreateRecipe.dart';
 import 'package:open_ag_mobile/routes/RecipeList.dart';
 import 'package:open_ag_mobile/tools/ui.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -20,6 +23,9 @@ class HomeState extends State<Home> {
   FoodComputer foodComputer;
   Recipe activeRecipe;
   FoodComputerData latestFoodComputerData;
+
+  TextEditingController searchController = TextEditingController();
+
 
   void loadFoodComputer(){
     //TODO redo
@@ -69,6 +75,10 @@ class HomeState extends State<Home> {
     Navigator.of(context).push(CupertinoPageRoute<bool>(builder: (context) => RecipeList()));
   }
 
+  void openCreateRecipe(){
+    Navigator.of(context).push(CupertinoPageRoute<bool>(builder: (context) => CreateRecipe()));
+  }
+
 
 
 
@@ -77,11 +87,13 @@ class HomeState extends State<Home> {
   Widget build(BuildContext context) {
     Color primary = Theme.of(context).primaryColor;
 
+
+    //TODO turn into component
     Widget header = Container(color: Colors.white,
-        child: Padding(padding: const EdgeInsets.all(12.0),
+        child: Padding(padding: const EdgeInsets.all(14.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(padding: const EdgeInsets.only(top: 16.0)),
+              Padding(padding: const EdgeInsets.only(top: 26.0)),
               Row(
                 children: <Widget>[
                   Expanded(child: Text(foodComputer.title, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20.0), textAlign: TextAlign.start)),
@@ -120,7 +132,6 @@ class HomeState extends State<Home> {
         )
     );
 
-
     Widget stats = Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         NamedProgressBar("Water", 20, 60, Colors.blue, "Empty", "Full"),
@@ -141,21 +152,75 @@ class HomeState extends State<Home> {
       )
     );
 
-
-    Widget monitor = Container();
-
-    Widget recipes = Container();
-
     Widget home = Column(children: <Widget>[
       header,
       Divider(height:0.0, color: Colors.black38),
       refreshableStats,
-//      Expanded(child: Container(child: stats))
     ]);
+    //TODO turn into component
+
+
+
+
+
+
+
+
+
+    //TODO turn into component
+    Widget monitor = Container();
+    //TODO turn into component
+
+
+
+
+    //TODO turn into component
+    Widget recipeTopBar = CupertinoNavigationBar(
+      backgroundColor: Colors.white,
+      middle: Text("Growth Recipes"),
+      trailing: CupertinoButton(child: Icon(Icons.add, color: primary), onPressed: openCreateRecipe, padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 10.0, 0.0)),
+//      leading: CupertinoButton(child: Icon(Icons.search, color: primary), onPressed: (){}, padding: const EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 0.0, 0.0)),
+      padding: const EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 6.0, 0.0),
+    );
+
+
+    Widget recipeList = Expanded(child:
+      Container(child:
+        ListView(padding: const EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 6.0, 0.0),
+          children: <Widget>[
+            Padding(padding: const EdgeInsets.only(top:16.0, bottom: 8.0, left: 16.0, right: 16.0),
+              child: RoundedTextField(icon: Icons.search, placeholder: "Search", controller: searchController),
+            ),
+            RecipeRow(recipeId: 1, title: "Arugula", image: "assets/arugula.png"),
+            RecipeRow(recipeId: 1, title: "Spinach", image: "assets/arugula.png"),
+            RecipeRow(recipeId: 1, title: "Carrots", image: "assets/arugula.png"),
+            RecipeRow(recipeId: 1, title: "Pineapple", image: "assets/arugula.png"),
+            RecipeRow(recipeId: 1, title: "Celery", image: "assets/arugula.png"),
+            RecipeRow(recipeId: 1, title: "Cilantro", image: "assets/arugula.png"),
+            RecipeRow(recipeId: 1, title: "Brussel Sprouts", image: "assets/arugula.png"),
+          ]
+        )
+      )
+    );
+
+    Widget recipes = Column(children: <Widget>[
+      recipeTopBar,
+      recipeList
+    ]);
+    //TODO turn into component
+
+
+
+
+
+
+
+
+
+
 
     Widget bottomBar = BottomNavigationBar(
-      currentIndex: _navigationIndex,
-      onTap: (int i){setState(() {_navigationIndex = i;});},
+      currentIndex: _navigationIndex, onTap: (int i){setState(() {_navigationIndex = i;});},
       items: [
         BottomNavigationBarItem(icon: Icon(Icons.track_changes), title: Text("Monitor")),
         BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),
@@ -164,10 +229,12 @@ class HomeState extends State<Home> {
     );
 
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
-        backgroundColor: Colors.grey[100],
-        body: _navigationIndex == 0 ? monitor : _navigationIndex == 1 ? home : recipes,
-        bottomNavigationBar: bottomBar,
+      resizeToAvoidBottomPadding: false,
+      backgroundColor: Colors.grey[100],
+      body: _navigationIndex == 0 ? monitor :
+            _navigationIndex == 1 ? home :
+            recipes,
+      bottomNavigationBar: bottomBar,
     );
   }
 }
