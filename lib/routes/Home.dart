@@ -1,5 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:open_ag_mobile/components/NamedProgressBar.dart';
+import 'package:open_ag_mobile/components/SimpleChart.dart';
+import 'package:open_ag_mobile/components/SimpleLineGraph.dart';
+
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:intl/intl.dart';
+
 import 'package:open_ag_mobile/components/RecipeRow.dart';
 import 'package:open_ag_mobile/components/RoundedTextField.dart';
 import 'package:open_ag_mobile/entities/FoodComputer.dart';
@@ -7,9 +14,6 @@ import 'package:open_ag_mobile/entities/FoodComputerData.dart';
 import 'package:open_ag_mobile/entities/Recipe.dart';
 import 'package:open_ag_mobile/routes/CreateRecipe.dart';
 import 'package:open_ag_mobile/routes/RecipeList.dart';
-import 'package:open_ag_mobile/tools/ui.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:intl/intl.dart';
 
 
 class Home extends StatefulWidget {
@@ -134,10 +138,10 @@ class HomeState extends State<Home> {
 
     Widget stats = Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        NamedProgressBar("Water", 20, 60, Colors.blue, "Empty", "Full"),
-        NamedProgressBar("Temperature", 38, 60, Colors.red, "-20C", "40C"),
-        NamedProgressBar("PH Level", 24, 60, Colors.deepPurpleAccent, "Empty", "Full"),
-        NamedProgressBar("Light", 45, 60, Colors.orange, "Low", "High"),
+        TitledProgressBar(title: "Water", value: 20, max: 60, color: Colors.blue, minText: "Empty", maxText: "Full"),
+        TitledProgressBar(title: "Temperature", value: 38, max: 60, color: Colors.red, minText: "-20C", maxText: "40C"),
+        TitledProgressBar(title: "PH Level", value: 24, max:  60, color: Colors.deepPurpleAccent, minText:  "Empty", maxText: "Full"),
+        TitledProgressBar(title: "Light", value: 45, max:  60, color: Colors.orange, minText: "Low", maxText: "High"),
         Text("Updated " + DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(latestFoodComputerData.timestamp)), style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic))
       ],
     );
@@ -168,7 +172,26 @@ class HomeState extends State<Home> {
 
 
     //TODO turn into component
-    Widget monitor = Container();
+    Widget monitorHeader = Column(mainAxisSize: MainAxisSize.max, //crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Padding(padding: const EdgeInsets.only(top: 26.0)),
+        Row(
+          children: <Widget>[
+            Expanded(child: Text(foodComputer.title, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20.0), textAlign: TextAlign.start)),
+            IconButton(icon: Icon(Icons.settings), color: Colors.grey, onPressed: (){})
+          ],
+        ),
+        Padding(padding: const EdgeInsets.only(top: 4.0)),
+      ]
+    );
+
+    Widget monitor = Padding(padding: const EdgeInsets.all(14.0),
+      child: Column(children: <Widget>[
+        monitorHeader,
+        Container(height: 300, child: SimpleChart.withSampleData()),
+        Container(height: 300, child: SimpleLineGraph.withSampleData())
+      ])
+    );
     //TODO turn into component
 
 
@@ -188,7 +211,7 @@ class HomeState extends State<Home> {
       Container(child:
         ListView(padding: const EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 6.0, 0.0),
           children: <Widget>[
-            Padding(padding: const EdgeInsets.only(top:16.0, bottom: 8.0, left: 16.0, right: 16.0),
+            Padding(padding: const EdgeInsets.only(top:16.0, bottom: 10.0, left: 16.0, right: 16.0),
               child: RoundedTextField(icon: Icons.search, placeholder: "Search", controller: searchController),
             ),
             RecipeRow(recipeId: 1, title: "Arugula", image: "assets/arugula.png"),

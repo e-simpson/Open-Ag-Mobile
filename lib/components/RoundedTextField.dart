@@ -10,7 +10,7 @@ class RoundedTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(7.0)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(7.0)),
       child: CupertinoTextField (
         placeholder: placeholder,
         controller: controller,
