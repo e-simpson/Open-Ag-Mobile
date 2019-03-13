@@ -2,6 +2,14 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
+/// Sample linear data type.
+class LinearSales {
+  final int year;
+  final int sales;
+
+  LinearSales(this.year, this.sales);
+}
+
 class SimpleLineGraph extends StatelessWidget {
   final List<charts.Series> seriesList;
   final bool animate;
@@ -27,21 +35,21 @@ class SimpleLineGraph extends StatelessWidget {
 
   /// Create one series with sample hard coded data.
   static List<charts.Series<LinearSales, int>> _createSampleData() {
-    final myFakeDesktopData = [
+    final d1 = [
       LinearSales(0, 5),
       LinearSales(1, 25),
       LinearSales(2, 100),
       LinearSales(3, 75),
     ];
 
-    var myFakeTabletData = [
+    var d2 = [
       LinearSales(0, 10),
       LinearSales(1, 50),
       LinearSales(2, 200),
       LinearSales(3, 150),
     ];
 
-    var myFakeMobileData = [
+    var d3 = [
       LinearSales(0, 15),
       LinearSales(1, 75),
       LinearSales(2, 300),
@@ -51,33 +59,26 @@ class SimpleLineGraph extends StatelessWidget {
     return [
       charts.Series<LinearSales, int>(
         id: 'Desktop',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        colorFn: (ls, i) => charts.MaterialPalette.green.shadeDefault,
         domainFn: (LinearSales sales, _) => sales.year,
         measureFn: (LinearSales sales, _) => sales.sales,
-        data: myFakeDesktopData,
+        data: d1,
       ),
       charts.Series<LinearSales, int>(
         id: 'Tablet',
-        colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
+        colorFn: (ls, i) => charts.MaterialPalette.green.shadeDefault,
         domainFn: (LinearSales sales, _) => sales.year,
         measureFn: (LinearSales sales, _) => sales.sales,
-        data: myFakeTabletData,
+        data: d2,
       ),
       charts.Series<LinearSales, int>(
         id: 'Mobile',
-        colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
+        colorFn: (ls, i) => charts.MaterialPalette.green.shadeDefault,
         domainFn: (LinearSales sales, _) => sales.year,
         measureFn: (LinearSales sales, _) => sales.sales,
-        data: myFakeMobileData,
+        data: d3,
       ),
     ];
   }
 }
 
-/// Sample linear data type.
-class LinearSales {
-  final int year;
-  final int sales;
-
-  LinearSales(this.year, this.sales);
-}

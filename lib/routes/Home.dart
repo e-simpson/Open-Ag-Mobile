@@ -7,7 +7,6 @@ import 'package:open_ag_mobile/components/SimpleLineGraph.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';
 
-import 'package:open_ag_mobile/components/RecipeRow.dart';
 import 'package:open_ag_mobile/components/RoundedTextField.dart';
 import 'package:open_ag_mobile/entities/FoodComputer.dart';
 import 'package:open_ag_mobile/entities/FoodComputerData.dart';
@@ -187,8 +186,9 @@ class HomeState extends State<Home> {
 
     Widget monitor = Padding(padding: const EdgeInsets.all(14.0),
       child: Column(children: <Widget>[
-        monitorHeader,
-        Container(height: 300, child: SimpleChart.withSampleData()),
+//        monitorHeader,
+        Padding(padding: const EdgeInsets.only(top: 26.0)),
+        Container(height: 300, child: SimplePieChart.withSampleData()),
         Container(height: 300, child: SimpleLineGraph.withSampleData())
       ])
     );
@@ -214,13 +214,13 @@ class HomeState extends State<Home> {
             Padding(padding: const EdgeInsets.only(top:16.0, bottom: 10.0, left: 16.0, right: 16.0),
               child: RoundedTextField(icon: Icons.search, placeholder: "Search", controller: searchController),
             ),
-            RecipeRow(recipeId: 1, title: "Arugula", image: "assets/arugula.png"),
-            RecipeRow(recipeId: 1, title: "Spinach", image: "assets/arugula.png"),
-            RecipeRow(recipeId: 1, title: "Carrots", image: "assets/arugula.png"),
-            RecipeRow(recipeId: 1, title: "Pineapple", image: "assets/arugula.png"),
-            RecipeRow(recipeId: 1, title: "Celery", image: "assets/arugula.png"),
-            RecipeRow(recipeId: 1, title: "Cilantro", image: "assets/arugula.png"),
-            RecipeRow(recipeId: 1, title: "Brussel Sprouts", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Arugula", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Spinach", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Carrots", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Pineapple", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Celery", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Cilantro", image: "assets/arugula.png"),
+//            RecipeRow(recipeId: 1, title: "Brussel Sprouts", image: "assets/arugula.png"),
           ]
         )
       )
@@ -239,11 +239,9 @@ class HomeState extends State<Home> {
 
 
 
-
-
-
     Widget bottomBar = BottomNavigationBar(
-      currentIndex: _navigationIndex, onTap: (int i){setState(() {_navigationIndex = i;});},
+      currentIndex: _navigationIndex,
+      onTap: (int i){setState(() {_navigationIndex = i;});},
       items: [
         BottomNavigationBarItem(icon: Icon(Icons.track_changes), title: Text("Monitor")),
         BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),

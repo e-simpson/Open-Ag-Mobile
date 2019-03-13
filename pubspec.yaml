@@ -14,15 +14,15 @@ dependencies:
   cupertino_icons: ^0.1.2
   intl: ^0.15.6
   sqflite: ^1.0.0
+  path_provider: ^0.4.1
 #  dynamic_theme: ^1.0.0
+#  expandable: ^2.0.0
   screentheme: ^0.0.2
   carousel_slider: ^1.0.1
   flutter_swiper: ^1.1.4  # remove
 #  flutter_page_indicator: ^0.0.3 # remove?
   percent_indicator: ^1.0.12
   charts_flutter: ^0.5.0
-
-
 
 #  path_provider: ^0.4.0
 #  vibrate: ^0.0.4
@@ -41,6 +41,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  fonts:
+  - family: Source
+    fonts:
+    - asset: fonts/Source.ttf
 
   assets:
     - assets/agriculture.png
@@ -50,5 +54,6 @@ flutter:
     - assets/plugin.png
     - assets/searching.png
     - assets/check.png
+
 
     - assets/arugula.png

@@ -2,27 +2,23 @@ import 'dart:math';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-class SimpleChart extends StatelessWidget {
+class SimplePieChart extends StatelessWidget {
   final List<charts.Series> seriesList;
   final bool animate;
 
-  SimpleChart(this.seriesList, {this.animate});
+  SimplePieChart(this.seriesList, {this.animate});
 
   /// Creates a [PieChart] with sample data and no transition.
-  factory SimpleChart.withSampleData() {
-    return SimpleChart(
+  factory SimplePieChart.withSampleData() {
+    return SimplePieChart(
       _createSampleData(),
       // Disable animations for image tests.
       animate: false,
     );
   }
 
-  // EXCLUDE_FROM_GALLERY_DOCS_START
-  // This section is excluded from being copied to the gallery.
-  // It is used for creating random series data to demonstrate animation in
-  // the example app only.
-  factory SimpleChart.withRandomData() {
-    return SimpleChart(_createRandomData());
+  factory SimplePieChart.withRandomData() {
+    return SimplePieChart(_createRandomData());
   }
 
   /// Create random data.
@@ -45,7 +41,6 @@ class SimpleChart extends StatelessWidget {
       )
     ];
   }
-  // EXCLUDE_FROM_GALLERY_DOCS_END
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +62,7 @@ class SimpleChart extends StatelessWidget {
         domainFn: (LinearSales sales, _) => sales.year,
         measureFn: (LinearSales sales, _) => sales.sales,
         data: data,
+        colorFn: (ls, i) => charts.MaterialPalette.green.makeShades(data.length)[i],
       )
     ];
   }

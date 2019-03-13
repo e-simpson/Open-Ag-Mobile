@@ -12,13 +12,14 @@ class TitledProgressBar extends StatelessWidget {
 
   TitledProgressBar({this.title, this.value, this.max, this.color, this.minText, this.maxText}) : assert(title != null), assert(value != null), assert(max != null), assert(color != null), assert(minText != null), assert(maxText != null);
 
+
   @override
   Widget build(BuildContext context) {
     return Padding(padding: const EdgeInsets.only(left: 34.0, right: 34.0, top: 2.0, bottom: 46.0),
       child: Column(
         children: <Widget>[
           Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.start,
-            children: [Text(title, style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: color))],
+            children: [Text(title, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: color))],
           ),
           Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[

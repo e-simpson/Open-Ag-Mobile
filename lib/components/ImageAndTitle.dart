@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ImageAndTitle extends StatelessWidget{
+class ImageAndTitle extends StatelessWidget {
   final String image;
   final String title;
   final Color textColor;
@@ -8,6 +8,7 @@ class ImageAndTitle extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+
     return new Center(
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -20,3 +21,7 @@ class ImageAndTitle extends StatelessWidget{
     );
   }
 }
+
+
+
+

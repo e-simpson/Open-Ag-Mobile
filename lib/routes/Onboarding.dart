@@ -43,8 +43,6 @@ class OnboardingState extends State<Onboarding> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
 

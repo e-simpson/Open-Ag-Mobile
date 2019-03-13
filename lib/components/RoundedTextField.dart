@@ -5,16 +5,19 @@ class RoundedTextField extends StatelessWidget {
   final TextEditingController controller;
   final String placeholder;
   final IconData icon;
-  RoundedTextField({this.controller, this.placeholder, this.icon}) : assert(controller != null);
+  final Function onChanged;
+  RoundedTextField({this.controller, this.placeholder, this.icon, this.onChanged}) : assert(controller != null);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(7.0)),
-      child: CupertinoTextField (
+      child: CupertinoTextField(
+        onChanged: onChanged,
         placeholder: placeholder,
         controller: controller,
         textCapitalization: TextCapitalization.words,
+        cursorColor: Theme.of(context).primaryColor,
         prefix: icon != null ? Padding(
           padding: const EdgeInsets.all(8.0),
           child: Icon(icon, color: Colors.grey),

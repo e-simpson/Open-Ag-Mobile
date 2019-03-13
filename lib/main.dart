@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:open_ag_mobile/routes/CreateRecipe.dart';
 import 'package:open_ag_mobile/routes/Home.dart';
 import 'package:open_ag_mobile/routes/Onboarding.dart';
-import 'package:open_ag_mobile/routes/RecipeList.dart';
 import 'package:open_ag_mobile/routes/Setup.dart';
 import 'package:open_ag_mobile/routes/Splash.dart';
 import 'package:open_ag_mobile/routes/ViewRecipe.dart';
@@ -23,7 +22,6 @@ void main() {
 }
 
 class OpenAgMobileApp extends StatelessWidget {
-
   @override Widget build(BuildContext context) {
     final Color primary = Colors.green;
     //Theme data
@@ -59,7 +57,6 @@ class OpenAgMobileApp extends StatelessWidget {
           "/onboarding": (_) => Onboarding(),
           "/setup": (_) => Setup(),
           "/home": (_) => Home(),
-          "/recipes": (_) => RecipeList(),
           "/createrecipe": (_) => CreateRecipe(),
           "/viewrecipe": (_) => ViewRecipe(),
         },
