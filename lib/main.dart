@@ -2,27 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
-import 'package:open_ag_mobile/routes/CreateRecipe.dart';
-import 'package:open_ag_mobile/routes/Home.dart';
-import 'package:open_ag_mobile/routes/Onboarding.dart';
-import 'package:open_ag_mobile/routes/Setup.dart';
-import 'package:open_ag_mobile/routes/Splash.dart';
-import 'package:open_ag_mobile/routes/ViewRecipe.dart';
-
 import 'package:screentheme/screentheme.dart';
 
+import 'package:open_ag_mobile/routes/Splash.dart';
 
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   ScreenTheme.darkStatusBar();
+
+  runApp(OpenAgMobileApp());
+}
+
+void themeNavBar(){
   ScreenTheme.darkNavigationBar();
   ScreenTheme.updateNavigationBarColor(Colors.grey[50]);
-  runApp(OpenAgMobileApp());
 }
 
 class OpenAgMobileApp extends StatelessWidget {
   @override Widget build(BuildContext context) {
+    if(Theme.of(context).platform == TargetPlatform.android) themeNavBar();
+
     final Color primary = Colors.green;
     //Theme data
     ThemeData theme = ThemeData(
@@ -53,13 +53,6 @@ class OpenAgMobileApp extends StatelessWidget {
         title: "OpenAg Mobile",
         color: Colors.grey[200],
         home: Splash(),
-        routes: {
-          "/onboarding": (_) => Onboarding(),
-          "/setup": (_) => Setup(),
-          "/home": (_) => Home(),
-          "/createrecipe": (_) => CreateRecipe(),
-          "/viewrecipe": (_) => ViewRecipe(),
-        },
         theme: theme,
         debugShowCheckedModeBanner: false
     );

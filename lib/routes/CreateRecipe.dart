@@ -1,6 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:open_ag_mobile/components/Describe.dart';
 import 'package:open_ag_mobile/components/RoundedTextField.dart';
+import 'package:open_ag_mobile/models/Recipe.dart';
+import 'package:open_ag_mobile/models/User.dart';
+import 'package:open_ag_mobile/tools/DatabaseProvider.dart';
+import 'package:open_ag_mobile/tools/jsonRecipeTools.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:circular_check_box/circular_check_box.dart';
 
 
 class CreateRecipe extends StatefulWidget {
@@ -12,16 +19,13 @@ class CreateRecipe extends StatefulWidget {
 class CreateRecipeState extends State<CreateRecipe> {
   int _step = 1;
   int _wizardOrRaw;
-  bool _hideRecipeStyle = false;
-  bool _hideConfiguration = false;
-  bool _hideDescribe = false;
 
+  //Recipe variables
   TextEditingController rawInputController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController authorController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  List<Widget> environments = List<Widget>();
-  List<Widget> phases = List<Widget>();
+  List<RecipePhase> phases = List<RecipePhase>();
 
   @override
   void dispose() {
@@ -32,112 +36,209 @@ class CreateRecipeState extends State<CreateRecipe> {
     super.dispose();
   }
 
-  Widget stepHeader(int number, String text, Function onTap){
-    double opacity = _step >= number ? 1 : 0.2;
-    return CupertinoButton(
-      padding: EdgeInsets.only(bottom: 0.0),
-      onPressed: _step >= number ? (){setState(() {onTap();});} : null,
-      child: Row(crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[
-          Container(width: 38.0, child: Text(number.toString(), style: TextStyle(color: Colors.black.withOpacity(opacity), fontSize: 80.0, fontWeight: FontWeight.bold))),
-          Container(width: 30.0),
-          Padding(padding: const EdgeInsets.only(bottom: 9.0),
-            child: Text(text, style: TextStyle(color: Colors.black.withOpacity(opacity), fontSize: 40.0, fontWeight: FontWeight.bold)),
-          )
-        ],
-      ),
-    );
-  }
+  //finalize
+  void saveAndComplete() async {
+    DatabaseProvider dbp = DatabaseProvider();
+    await dbp.open();
 
-  void updateStep(){
-    if (_wizardOrRaw == null) _step = 1;
-    else if (_wizardOrRaw == 1){
-      _step = 2;
-      if (environments.length == 0 || phases.length == 0) _step = 2;
-      else if (nameController.text.isNotEmpty) _step = 4;
-      else _step = 3;
+    Recipe r = Recipe();
+    r.name = nameController.text;
+    DateTime now = DateTime.now();
+    r.timestamp = now.millisecondsSinceEpoch;
+
+    User author = await dbp.fetchUserByEmail(emailController.text);
+    if (author == null) {
+      author = User();
+      author.name = authorController.text;
+      author.email = emailController.text;
+      author = await dbp.upsertUser(author);
     }
-    else if (_wizardOrRaw == 2){
-      _step = 2;
-      if (rawInputController.text.isEmpty) _step = 2;
-      else if (nameController.text.isNotEmpty) _step = 4;
-      else _step = 3;
-    }
+    r.creatorUserId = author.id;
+
+    if (_wizardOrRaw == 2) r.recipe = rawInputController.text;
+    else r.recipe = generateRecipeJSON(phases, r.name, author.name, author.email, now);
+
+    await dbp.upsertRecipe(r);
+
+    Navigator.pop(context);
   }
 
-  void addEnvironment(){
-    Widget environment = Container(
-      child: Column(
-        children: <Widget>[
-          describe("1", 10)
-        ],
-      ),
-    );
-    setState(() {environments.add(environment);});
-  }
-
-  void addGrowthPhase(){
-    setState(() {
-      phases.add(describe(
-          "t", 10
-      ));
-    });
-  }
-
-  void saveAndFinish(){
-
-  }
-
-  Widget describe(String text, double height, {bool bold = false}){
-    return Padding(padding: const EdgeInsets.only(bottom: 12.0),
+  //widget builders
+  List<Widget> buildPhaseCycleWidgets(List<RecipePhaseCycle> cycles){
+    List<Widget> widgets = List<Widget>();
+    for (RecipePhaseCycle c in cycles) {
+      RecipeEnvironment e = c.environment;
+      int index = cycles.indexOf(c)+1;
+      c.name = "Cycle"+index.toString();
+      c.environment.name = "Environment" + index.toString();
+      Widget w = Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
         child: Container(
-          height: height,
-          alignment: Alignment.topLeft,
-          child: Text(text, style: bold ? TextStyle(fontWeight: FontWeight.bold) : null),
-        )
-    );
+          padding: EdgeInsets.all(8.0),
+          decoration: BoxDecoration(color: Colors.indigo[300], borderRadius: BorderRadius.all(Radius.circular(12.0))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(child: Text("Environment " + index.toString(), style: TextStyle(fontSize: 23.0, fontWeight: FontWeight.bold, color: Colors.white))),
+                  Text("Run for ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Padding(padding: const EdgeInsets.only(right: 8.0)),
+                  Container(width: 40.0, child: RoundedTextField(placeholder: "16", keyboardType: TextInputType.numberWithOptions(decimal: false), onChanged: (s){c.durationHours = int.parse(s);})),
+                  Padding(padding: const EdgeInsets.only(right: 8.0)),
+                  Text("Hours", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Padding(padding: const EdgeInsets.only(bottom: 16.0)),
+              roundedTextFieldWithSideLabel(label: "Photosynthetic Photon Flux Density", placeholder: "800", light: true, keyboardType: TextInputType.numberWithOptions(decimal: false), onChanged: (s){e.lightPpfdUmolM2S = int.parse(s);}),
+              roundedTextFieldWithSideLabel(label: "Light Illumination Distance (Cm)", placeholder: "10", light: true, keyboardType: TextInputType.numberWithOptions(decimal: false), onChanged: (s){e.lightIlluminationDistanceCm = int.parse(s);}),
+              roundedTextFieldWithSideLabel(label: "Air Temperature (°C)", placeholder: "22", light: true, keyboardType: TextInputType.numberWithOptions(decimal: false), onChanged: (s){e.airTemperatureCelsius = int.parse(s);}),
+              Text("Light Spectrum (Nm percent)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              Padding(padding: const EdgeInsets.only(bottom: 6.0)),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Column(children: <Widget>[
+                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[0].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                    Text("380-399", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
+                  ]),
+                  Column(children: <Widget>[
+                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[1].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                    Text("400-499", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
+                  ]),
+                  Column(children: <Widget>[
+                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[2].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                    Text("500-599", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
+                  ]),
+                  Column(children: <Widget>[
+                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[3].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                    Text("600-700", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
+                  ]),
+                  Column(children: <Widget>[
+                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[4].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Padding(padding: const EdgeInsets.only(bottom: 4.0)),
+                    Text("701-780", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
+                  ]),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+
+      w = Dismissible(key: ObjectKey(e), child: w, onDismissed: (d){setState(() { cycles.removeAt(cycles.indexOf(c));});},);
+      widgets.add(w);
+    }
+    return widgets;
+  }
+  List<Widget> buildPhaseWidgets(List<RecipePhase> phases){
+    List<Widget> widgets = List<Widget>();
+    for (RecipePhase p in phases) {
+      int index = (phases.indexOf(p)+1);
+      p.name = "Phase" + index.toString();
+      Widget w = Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Container(
+          padding: EdgeInsets.all(8.0),
+          decoration: BoxDecoration(color: Colors.indigo[400], borderRadius: BorderRadius.all(Radius.circular(12.0))),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(child: Text("Phase " + index.toString(), style: TextStyle(fontSize: 23.0, fontWeight: FontWeight.bold, color: Colors.white))),
+                  Text("Repeat for ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Padding(padding: const EdgeInsets.only(right: 8.0)),
+                  Container(width: 40.0, child: RoundedTextField(placeholder: "30", keyboardType: TextInputType.numberWithOptions(decimal: false), onChanged: (s){p.repeat = int.parse(s);})),
+                  Padding(padding: const EdgeInsets.only(right: 8.0)),
+                  Text("Days", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Padding(padding: const EdgeInsets.only(bottom: 16.0)),
+              Container(child: Column(children: buildPhaseCycleWidgets(p.cycles))),
+              Divider(color: Colors.white),
+              Center(child: CupertinoButton(
+                  child: Text("Add Environment"), color: Colors.indigo[400],
+                  onPressed: (){addEnvironment(p);},
+              ))
+            ],
+          ),
+        ),
+      );
+
+      w = Dismissible(key: ObjectKey(p), child: w, onDismissed: (d){setState(() {phases.removeAt(phases.indexOf(p));});},);
+      widgets.add(w);
+    }
+    return widgets;
   }
 
-  Widget padLeft(Widget w){
-    return Padding(padding: const EdgeInsets.only(left: 72.0), child: w);
+
+  //Add to recipe object
+  void addEnvironment(RecipePhase p){
+    RecipePhaseCycle cycle = RecipePhaseCycle();
+    cycle.environment = RecipeEnvironment();
+    setState(() {p.cycles.add(cycle);});
   }
+  void addGrowthPhase(){
+    setState(() {phases.add(RecipePhase());});
+  }
+
+
+  //stepper helpers
+  Function nullBuilder = (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+    return Row(children: <Widget>[Container(child: null), Container(child: null)]);
+  };
+  void advanceStep(){
+    if (_step <= 2) setState(() { _step++;});
+    else if (_step == 3) saveAndComplete();
+  }
+  void goBack(){
+    if (_step >= 1) setState(() { _step--;});
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    updateStep();
     ThemeData theme = Theme.of(context);
 
     Widget recipeTopBar = CupertinoNavigationBar(
       backgroundColor: Colors.white,
       actionsForegroundColor: theme.primaryColor,
       middle: Text("New Growth Recipe"),
-      trailing: CupertinoButton(padding: EdgeInsets.all(0.0), child: Icon(Icons.help_outline), onPressed: (){}),
+      trailing: CupertinoButton(padding: EdgeInsets.all(0.0), child: Icon(Icons.help_outline), onPressed: (){launch('https://wiki.openag.media.mit.edu/recipe/start');}),
     );
 
     //STEP 1-----------------
     Widget stepOne = Column(
       children: <Widget>[
-        describe(_wizardOrRaw == 1 || _wizardOrRaw == null ?
-          "The recipe wizard provides a setup interface with the most common configurables."
-          : "Growth recipes are deployed in JSON format, use this mode to simply paste in JSON text.", 48.0
+        Describe("The recipe wizard provides a setup interface with the most common configurables." + "\n\nGrowth recipes are converted into JSON format during deployment. Use the JSON input mode to paste a JSON recipe."),
+        Padding(padding: const EdgeInsets.only(bottom: 28.0)),
+        CupertinoButton(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          onPressed: () => setState((){_wizardOrRaw = 1;}),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: Text("Use Recipe Wizard", style: TextStyle(color: Colors.black87))),
+              CircularCheckBox(value: _wizardOrRaw == 1, onChanged: (b){setState((){_wizardOrRaw = b ? 1 : null;});})
+            ],
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Expanded(child: CupertinoButton(padding: EdgeInsets.all(0.0),
-              child: Text("Recipe Wizard", style: _wizardOrRaw == 1 ? null : TextStyle(color: theme.primaryColor)),
-              onPressed: () => setState((){_wizardOrRaw = 1; }),
-              color: _wizardOrRaw == 1 ? theme.primaryColor : Colors.grey[200],
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(12.0), bottomLeft: Radius.circular(12.0)),
-            )),
-            Expanded(child: CupertinoButton(padding: EdgeInsets.all(0.0),
-              child: Text("JSON Input", style: _wizardOrRaw == 2 ? null : TextStyle(color: theme.primaryColor)),
-              color: _wizardOrRaw == 2 ? theme.primaryColor : Colors.grey[200],
-              onPressed: () => setState((){_wizardOrRaw = 2; }),
-              borderRadius: BorderRadius.only(topRight: Radius.circular(12.0), bottomRight: Radius.circular(12.0)),
-            ))
-        ]),
+        CupertinoButton(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          onPressed: () => setState((){_wizardOrRaw = 2;}),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: Text("Use JSON Input", style: TextStyle(color: Colors.black87))),
+              CircularCheckBox(value: _wizardOrRaw == 2, onChanged: (b){setState((){_wizardOrRaw = b ? 2 : null;});})
+            ],
+          ),
+        ),
       ],
     );
     //-----------------------
@@ -154,36 +255,18 @@ class CreateRecipeState extends State<CreateRecipe> {
       decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.all(Radius.circular(12.0)))
     );
 
-    Widget environmentsBox = Container(
-        padding: EdgeInsets.all(12.0),
-        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.all(Radius.circular(12.0))),
-        child: Column(children: <Widget>[
-          describe("Environments:", 20.0, bold: true),
-          Column(children: environments),
-          CupertinoButton(
-            child: Text("Add Environment", style: TextStyle(color: theme.primaryColor)),
-            onPressed: addEnvironment,
-          ),
-        ])
-    );
-
-    Widget phasesBox = Container(
-        padding: EdgeInsets.all(12.0),
-        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.all(Radius.circular(12.0))),
-        child: Column(children: <Widget>[
-          describe("Growth Phases:", 20.0, bold: true),
-          Column(children: phases),
-          CupertinoButton(
-            child: Text("Add Growth Phase", style: TextStyle(color: theme.primaryColor)),
-            onPressed: addGrowthPhase,
-          ),
-        ])
-    );
+    Widget phasesBox = Column(children: <Widget>[
+      Container(child: Column(children: buildPhaseWidgets(phases))),
+      CupertinoButton(
+        child: Text("Add Growth Phase", style: TextStyle(color: theme.primaryColor)),
+        onPressed: addGrowthPhase,
+      ),
+    ]);
 
     Widget recipeWizard = Column(
       children: <Widget>[
-        environmentsBox,
-        Padding(padding: EdgeInsets.only(bottom: 14.0)),
+        Describe("Growth Recipe consists of one or more growth phases.\n\nA growth phase details the phase's growth environments and the amount of days they should run for.\n\nA growth environment consists of parameters and the amount of time in a day they should run for."),
+        Padding(padding: const EdgeInsets.only(bottom: 30.0)),
         phasesBox
       ],
     );
@@ -195,47 +278,79 @@ class CreateRecipeState extends State<CreateRecipe> {
     Widget stepThree = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text("Name", style: TextStyle(fontWeight: FontWeight.bold)),
-        RoundedTextField(controller: nameController, icon: CupertinoIcons.tag_solid, onChanged: (s){setState(() {_step = _step;});},),
-        Padding(padding: EdgeInsets.only(bottom: 12.0)),
-
-        Text("Author", style: TextStyle(fontWeight: FontWeight.bold)),
-        RoundedTextField(controller: authorController, icon: CupertinoIcons.person_solid),
-        Padding(padding: EdgeInsets.only(bottom: 12.0)),
-
-        Text("Email", style: TextStyle(fontWeight: FontWeight.bold)),
-        RoundedTextField(controller: emailController, icon: CupertinoIcons.mail_solid),
-        Padding(padding: EdgeInsets.only(bottom: 12.0)),
-
+        roundedTextFieldWithTopLabel(label: "Name", icon: CupertinoIcons.tag_solid, c: nameController),
+        roundedTextFieldWithTopLabel(label: "Author", icon: CupertinoIcons.person_solid, c: authorController),
+        roundedTextFieldWithTopLabel(label: "Email", icon: CupertinoIcons.mail_solid, c: emailController),
 //        Text("Photo", style: TextStyle(fontWeight: FontWeight.bold)),
-
 //        Padding(padding: EdgeInsets.only(bottom: 12.0)),
       ]
     );
     //-----------------------
 
+    Widget stepper = Stepper(
+      steps: [
+        Step(
+          title: Text("Style", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+          content: stepOne, isActive: _step == 1,
+          subtitle: _wizardOrRaw != null ? Text(_wizardOrRaw == 1 ? "Wizard" : "JSON") : null,
+          state: StepState.disabled
+        ),
+        Step(
+            title: Text("Configure", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+            subtitle: phases.length > 0 ? Text(phases.length == 1 ? phases.length.toString() + " Phase" : phases.length.toString() + " Phases") : null,
+            content: stepTwo, isActive: _step == 2,
+            state: StepState.disabled
+        ),
+        Step(
+            title: Text("Describe", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+            content: stepThree, isActive: _step == 3,
+            state: StepState.disabled
+        )
+      ],
+      type: StepperType.horizontal,
+      controlsBuilder: nullBuilder,
+      currentStep: _step - 1,
+      onStepCancel: null,
+      onStepContinue: null,
+      onStepTapped: null,
+    );
 
-    Widget body = ListView(
-      padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 10.0),
+    Widget controlButtons = Row(mainAxisSize: MainAxisSize.max,
       children: <Widget>[
-        stepHeader(1, "Recipe Style", (){_hideRecipeStyle = !_hideRecipeStyle;}),
-        !_hideRecipeStyle ? padLeft(stepOne) : Container(),
-
-        stepHeader(2, "Configuration", (){_hideConfiguration = !_hideConfiguration;}),
-        !_hideConfiguration && _step >= 2 ? padLeft(stepTwo) : Container(),
-
-        stepHeader(3, "Describe", (){_hideDescribe = !_hideDescribe;}),
-        !_hideDescribe && _step >= 3 ? padLeft(stepThree) : Container(),
-
-        Padding(
-          padding: const EdgeInsets.only(top: 12.0, bottom: 32.0),
+        _step > 1 ? Padding(
+          padding: const EdgeInsets.all(16.0),
           child: CupertinoButton(
-            child: Text("Complete"),
-            color: theme.primaryColor,
-            onPressed: _step == 4 ? saveAndFinish : null,
+            child: Text("Back", style: TextStyle(color: theme.primaryColor)),
+            onPressed: goBack
           ),
+        ) : Container(),
+        Expanded(child:
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CupertinoButton(
+              child: Text(_step != 3 ? "Continue" : "Complete"),
+              onPressed: _step == 1 && _wizardOrRaw != null
+                  || _step == 2  && _wizardOrRaw == 1 && phases.length > 0 && phases[0].cycles.length > 0
+                  || _step == 2  && _wizardOrRaw == 2 && rawInputController.text.isNotEmpty
+                  || _step == 3 && nameController.text.isNotEmpty ? advanceStep : null,
+              color: theme.primaryColor
+            ),
+          )
         ),
       ],
+    );
+
+    Widget body = Padding(
+      padding: const EdgeInsets.only(bottom: 30.0),
+      child: Column(
+        children: <Widget>[
+          Expanded(child: Container(child: stepper)),
+          Container(
+            decoration: _step == 2  && _wizardOrRaw == 1 && phases.length > 0 && phases[0].cycles.length > 0 ? BoxDecoration(color: Colors.grey[50], boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.07), offset: Offset(0.0, -10.0), blurRadius: 5.0)]) : null,
+            child: controlButtons
+          )
+        ],
+      ),
     );
 
     return WillPopScope(
@@ -262,7 +377,7 @@ class CreateRecipeState extends State<CreateRecipe> {
       child: Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: recipeTopBar,
-        body: body
+        body: body,
       ),
     );
   }

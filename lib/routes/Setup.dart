@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:open_ag_mobile/components/Describe.dart';
 import 'package:open_ag_mobile/components/RoundedTextField.dart';
+import 'package:open_ag_mobile/models/FoodComputer.dart';
+import 'package:open_ag_mobile/routes/Home.dart';
+import 'package:open_ag_mobile/tools/DatabaseProvider.dart';
 import 'package:open_ag_mobile/tools/constants.dart';
 import 'package:open_ag_mobile/tools/ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,18 +20,25 @@ enum ConnectionState { WAITING, SEARCHING, FOUND }
 class SetupState extends State<Setup> {
   ConnectionState _connectionState = ConnectionState.WAITING;
   TextEditingController nameController = TextEditingController();
+  DatabaseProvider dbp;
 
-  void finishSetup() async {
-    //TODO save contents of computer
+  SetupState(){
+    dbp = DatabaseProvider();
+    dbp.open();
+  }
+
+  Future finishSetup() async {
+    FoodComputer f = FoodComputer();
+    f.ip = "192.12.1.30";
+    f.title = nameController.text;
+    f = await dbp.upsertFoodComputer(f);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(foodComputerNamePreference, nameController.text);
-    Navigator.pushNamedAndRemoveUntil(context, "/home", (_) => false);
+    await prefs.setInt(foodComputerIdPreference, f.id);
+    Navigator.of(context).pushAndRemoveUntil(CupertinoPageRoute<bool>(builder: (context) => Home()), (_) => false);
   }
 
   void foundComputer(){
-    setState(() {
-      setState(() {_connectionState = ConnectionState.FOUND;});
-    });
+    setState(() {_connectionState = ConnectionState.FOUND;});
   }
 
   void startSearching(){
@@ -75,11 +86,10 @@ class SetupState extends State<Setup> {
       child: bottomContent,
     );
 
-    Widget textContent = Text(
-       _connectionState == ConnectionState.WAITING ? "Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer Turn on your Food Computer" :
-       _connectionState == ConnectionState.SEARCHING ? "Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer Searching for a Food Computer " :
-       "Your Food Computer has been found! Give it a name, you can always change it later.",  //FOUND
-       style: TextStyle(color: Colors.black, fontSize: 16.0),
+    Widget textContent = Describe(
+       _connectionState == ConnectionState.WAITING ? "Power on your Open Ag Food Computer 3.0 device. Once it is booted up, connect it to the local network using an ethernet cord or WiFi." :
+       _connectionState == ConnectionState.SEARCHING ? "If your Food Computer device cannot be found it is likely that it is not connected to the local internet network or isn't version 3.0." :
+       "Your Food Computer has been found! Give it a name, you can always change it later."  //FOUND
     );
 
     Widget glyphContent = Stack(
@@ -116,7 +126,7 @@ class SetupState extends State<Setup> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text("Food Computer Name", style: TextStyle(fontWeight: FontWeight.bold, )),
                   ),
-                  RoundedTextField(controller: nameController, icon: Icons.computer, placeholder: "John's Food Computer"),
+                  RoundedTextField(controller: nameController, icon: Icons.computer, placeholder: "My Food Computer"),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 68.0),
                     child: Text("192.12.1.30", style: TextStyle(color: Colors.grey)),

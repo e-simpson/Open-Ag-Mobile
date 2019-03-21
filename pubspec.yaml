@@ -19,16 +19,17 @@ dependencies:
 #  expandable: ^2.0.0
   screentheme: ^0.0.2
   carousel_slider: ^1.0.1
-  flutter_swiper: ^1.1.4  # remove
-#  flutter_page_indicator: ^0.0.3 # remove?
+  flutter_swiper: ^1.1.4
+#  flutter_page_indicator: ^0.0.3
   percent_indicator: ^1.0.12
   charts_flutter: ^0.5.0
+  circular_check_box: ^0.0.2
 
-#  path_provider: ^0.4.0
+  #  path_provider: ^0.4.0
 #  vibrate: ^0.0.4
 #  zoomable_image: ^1.2.0
   shared_preferences: ^0.4.1
-#  url_launcher: ^3.0.1
+  url_launcher: ^3.0.1
 #  advanced_share: any
 #  share: ^0.4.0
 #  simple_permissions: ^0.1.5
@@ -55,5 +56,14 @@ flutter:
     - assets/searching.png
     - assets/check.png
 
-
     - assets/arugula.png
+    - assets/basil.png
+    - assets/kale.png
+    - assets/bell-pepper.png
+    - assets/blackberry.png
+    - assets/cabbage.png
+    - assets/carrot.png
+    - assets/strawberry.png
+    - assets/vine-tomato.png
+    - assets/zucchini.png
+

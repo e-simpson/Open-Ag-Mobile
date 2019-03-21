@@ -17,7 +17,7 @@ class OnboardingState extends State<Onboarding> {
   PageController pageController = PageController();
 
   List<Widget> carouselItems = <Widget>[
-    ImageAndTitle(image: "assets/agriculture.png", title: "Experience a new way to grow"),
+    ImageAndTitle(image: "assets/agriculture.png", title: "Experience a new way\nto grow"),
     ImageAndTitle(image: "assets/research.png", title: "Contribute to a world class\nresearch project"),
     ImageAndTitle(image: "assets/crops.png", title: "Enjoy what you have grown")
   ];
