@@ -100,27 +100,27 @@ class CreateRecipeState extends State<CreateRecipe> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   Column(children: <Widget>[
-                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[0].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Container(width: 60.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[0].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
                     Padding(padding: const EdgeInsets.only(bottom: 4.0)),
                     Text("380-399", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
                   ]),
                   Column(children: <Widget>[
-                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[1].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Container(width: 60.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[1].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
                     Padding(padding: const EdgeInsets.only(bottom: 4.0)),
                     Text("400-499", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
                   ]),
                   Column(children: <Widget>[
-                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[2].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Container(width: 60.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[2].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
                     Padding(padding: const EdgeInsets.only(bottom: 4.0)),
                     Text("500-599", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
                   ]),
                   Column(children: <Widget>[
-                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[3].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Container(width: 60.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[3].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
                     Padding(padding: const EdgeInsets.only(bottom: 4.0)),
                     Text("600-700", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
                   ]),
                   Column(children: <Widget>[
-                    Container(width: 50.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[4].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                    Container(width: 60.0, child: RoundedTextField(placeholder: "0.0", onChanged: (s){e.lightLevels[4].value = double.parse(s);}, keyboardType: TextInputType.numberWithOptions(decimal: true))),
                     Padding(padding: const EdgeInsets.only(bottom: 4.0)),
                     Text("701-780", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 12.0)),
                   ]),
@@ -278,9 +278,12 @@ class CreateRecipeState extends State<CreateRecipe> {
     Widget stepThree = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        roundedTextFieldWithTopLabel(label: "Name", icon: CupertinoIcons.tag_solid, c: nameController),
+        Describe("Add the growth recipe name, author name, and an email. This information will be stored on this device and sent to the Food Computer during deployment."),
+        Padding(padding: const EdgeInsets.only(bottom: 24.0)),
+        roundedTextFieldWithTopLabel(label: "Recipe Name*", icon: CupertinoIcons.tag_solid, c: nameController),
         roundedTextFieldWithTopLabel(label: "Author", icon: CupertinoIcons.person_solid, c: authorController),
         roundedTextFieldWithTopLabel(label: "Email", icon: CupertinoIcons.mail_solid, c: emailController),
+        Text("Required Field*")
 //        Text("Photo", style: TextStyle(fontWeight: FontWeight.bold)),
 //        Padding(padding: EdgeInsets.only(bottom: 12.0)),
       ]

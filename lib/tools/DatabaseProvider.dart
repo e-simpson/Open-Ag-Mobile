@@ -121,7 +121,7 @@ class DatabaseProvider {
   //recipe
   Future<Recipe> upsertRecipe(Recipe r) async {
     if (r.id == null) r.id = await db.insert(tableRecipe, r.toMap());
-    else await db.update(tableRecipe, r.toMap(), where: "id = ?", whereArgs: [r.id]);
+    else await db.update(tableRecipe, r.toMap(), where: '$columnId = ?', whereArgs: [r.id]);
     return r;
   }
   Future<List<Recipe>> fetchAllRecipes() async {

@@ -23,6 +23,7 @@ Future removeRecipe(SharedPreferences prefs) async {
 }
 
 Future removeFoodComputer(SharedPreferences prefs, DatabaseProvider dbp, int id) async {
+  await removeRecipe(prefs);
   dbp.deleteFoodComputer(id);
   await prefs.remove(foodComputerIdPreference);
   await prefs.remove(foodComputerNamePreference);

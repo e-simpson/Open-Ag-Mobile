@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:open_ag_mobile/components/RoundedTextField.dart';
 import 'package:open_ag_mobile/models/Recipe.dart';
 import 'package:open_ag_mobile/models/User.dart';
+import 'package:open_ag_mobile/routes/EditRecipe.dart';
 import 'package:open_ag_mobile/tools/DatabaseProvider.dart';
 import 'package:open_ag_mobile/tools/constants.dart';
 import 'package:open_ag_mobile/tools/jsonRecipeTools.dart';
@@ -55,7 +56,9 @@ class ViewRecipeState extends State<ViewRecipe> {
   }
 
   void toggleEditingMode(){
+    Navigator.of(context).push(CupertinoPageRoute(builder: (BuildContext context) => EditRecipe(recipe, phases))).whenComplete((){
 
+    });
   }
   void deployRecipe() async {
     setState(() {canDeploy = false;});
@@ -76,6 +79,11 @@ class ViewRecipeState extends State<ViewRecipe> {
         ),
       ),
     );
+  }
+  void unDeployRecipe() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await removeRecipe(prefs);
+    setState(() {canDeploy = true;});
   }
   void deleteRecipe() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -266,6 +274,7 @@ class ViewRecipeState extends State<ViewRecipe> {
 
                 Padding(padding: const EdgeInsets.only(top: 16.0), child: Divider(height: 0.0)),
                 Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+                  canDeploy != null && canDeploy == false ? CupertinoButton(padding: EdgeInsets.only(right: 26.0), onPressed: unDeployRecipe, child: Text("End Deployment", style: TextStyle(color: Colors.red, fontSize: 16.0))) : Container(),
                   CupertinoButton(padding: EdgeInsets.all(0.0), onPressed: deleteRecipe, child: Text("Delete " + recipe.name, style: TextStyle(color: Colors.red, fontSize: 16.0)))
                 ]),
               ],
@@ -286,7 +295,7 @@ class ViewRecipeState extends State<ViewRecipe> {
       backgroundColor: Colors.white,
       middle: Text(recipe.name),
       actionsForegroundColor: theme.primaryColor,
-      trailing: CupertinoButton(child: Icon(CupertinoIcons.pencil, color: theme.primaryColor), onPressed: toggleEditingMode, padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 10.0, 0.0)),
+      trailing: canDeploy != null && canDeploy == true ? CupertinoButton(child: Icon(CupertinoIcons.pencil, color: theme.primaryColor), onPressed: toggleEditingMode, padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 10.0, 0.0)) : null,
       padding: const EdgeInsetsDirectional.fromSTEB(6.0, 0.0, 6.0, 0.0),
     );
 

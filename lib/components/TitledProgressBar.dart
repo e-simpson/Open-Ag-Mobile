@@ -16,7 +16,7 @@ class TitledProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.only(top: 0.0, bottom: 42.0),
+    return Padding(padding: const EdgeInsets.only(top: 6.0, bottom: 26.0),
       child: Column(
         children: <Widget>[
           Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.start,
@@ -37,9 +37,6 @@ class TitledProgressBar extends StatelessWidget {
                   progressColor: color,
                   animation: true,
                   animationDuration: 500,
-//                  leading: Text(minText, style: TextStyle(color: Colors.grey), textAlign: TextAlign.left),
-//                  trailing: Text(maxText, style: TextStyle(color: Colors.grey), , textAlign: TextAlign.right),
-//                center: Text(((value/max)*100).toInt().toString() + "%", style: TextStyle(color: (value/max) < 0.6 ? Colors.black : Colors.white)),
                 ),
               ),
               Expanded(child: Text(maxText, style: TextStyle(color: Colors.grey), textAlign: TextAlign.right)),

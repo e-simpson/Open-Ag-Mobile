@@ -35,6 +35,7 @@ class HomeState extends State<Home> {
   List<RecipePhase> activePhases;
   List<Recipe> recipes = List<Recipe>();
   FoodComputerData latestFoodComputerData;
+  bool updating = false;
 
   //TODO move to recipe object
   String recipeCompletionText;
@@ -53,7 +54,13 @@ class HomeState extends State<Home> {
   }
   void loadActiveRecipe() async {
     int activeId = prefs.getInt(activeRecipeIdPreference);
-    if (activeId == null) return;
+    if (activeId == null) {
+      setState(() {
+        activeRecipe = null;
+        activePhases = null;
+      });
+      return;
+    }
 
     activeRecipe = await dbp.fetchRecipe(activeId);
     activePhases = generateRecipePhasesFromJson(activeRecipe.recipe);
@@ -77,8 +84,13 @@ class HomeState extends State<Home> {
     latestFoodComputerData.nutrientBLevel = 2;
     latestFoodComputerData.temperature = 27;
     latestFoodComputerData.phLevel = 4.7;
+    setState((){
+      updating = false;
+      latestFoodComputerData = latestFoodComputerData;
+    });
   }
   Future refreshAll() async {
+    setState((){updating = true;});
     if (dbp == null) {
       dbp = DatabaseProvider();
       await dbp.open();
@@ -140,15 +152,14 @@ class HomeState extends State<Home> {
         Center(child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
-            Material(
-              child: Container(height: 200.0, width: 200.0),
+            Material(child: Container(height: 200.0, width: 200.0),
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(100.0),
             ),
             activeRecipe != null ? Column(children: <Widget>[
-              activeRecipe.imagePath != null ? Image.asset(activeRecipe.imagePath, width: 250.0) : Text("Custom recipe:", style: TextStyle(fontSize: 20.0)),
-              Padding(padding: const EdgeInsets.only(top: 8.0)),
+              activeRecipe.imagePath != null ? Image.asset(activeRecipe.imagePath, height: 110.0) : Text("Custom recipe:", style: TextStyle(fontSize: 20.0)),
               Text(activeRecipe.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: primary)),
+              Text("Growing", style: TextStyle(fontSize: 16.0, color: primary)),
             ])
             : CupertinoButton(child: Icon(Icons.add, size: 140.0, color: Colors.green), onPressed: ()=> setState((){_navigationIndex = 2;}))
           ],
@@ -168,8 +179,7 @@ class HomeState extends State<Home> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(padding: const EdgeInsets.only(top: 42.0)),
-              Row(
-                children: <Widget>[
+              Row(children: <Widget>[
                   Padding(padding: const EdgeInsets.only(right: 8.0), child: Icon(Icons.desktop_mac)),
                   Expanded(child: Text(foodComputer != null ? foodComputer.title : "", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20.0), textAlign: TextAlign.start)),
                 ],
@@ -179,36 +189,45 @@ class HomeState extends State<Home> {
           ),
         )
     );
-    Widget stats = latestFoodComputerData != null ? Padding(
-        padding: const EdgeInsets.only(left: 28.0, right: 28.0),
-        child: Column(mainAxisSize: MainAxisSize.max, crossAxisAlignment: CrossAxisAlignment.center,
+
+    Widget footer = Expanded(child: Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        //stats
+        latestFoodComputerData == null ? centerIndicator : Padding(padding: EdgeInsets.only(left: 28.0, right: 28.0),
+          child: Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              TitledProgressBar(title: "Current Temperature", value: 21, min: -20, max: 40, color: Colors.red, minText: "-20 °C", maxText: "40 °C", unit: "°C"),
+              TitledProgressBar(title: "Light Level", value: 300, min: 0, max: 300, color: Colors.orange, minText: "Min", maxText: "Max", unit: "µmol/m^2/s"),
+              TitledProgressBar(title: "PH Resevoir", value: 96, min: 0, max:  100, color: Colors.deepPurpleAccent, minText:  "Empty", maxText: "Full", unit: "%"),
+              TitledProgressBar(title: "Water Resevoir", value: 87, min: 0, max: 100, color: Colors.blue, minText: "Empty", maxText: "Full", unit: "%"),
+            ],
+          )
+        ),
+
+        //bottom indicator
+        Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            TitledProgressBar(title: "Current Temperature", value: 21, min: -20, max: 40, color: Colors.red, minText: "-20 °C", maxText: "40 °C", unit: "°C"),
-            TitledProgressBar(title: "Light Level", value: 300, min: 0, max: 300, color: Colors.orange, minText: "Min", maxText: "Max", unit: "µmol/m^2/s"),
-            TitledProgressBar(title: "PH Resevoir", value: 96, min: 0, max:  100, color: Colors.deepPurpleAccent, minText:  "Empty", maxText: "Full", unit: "%"),
-            TitledProgressBar(title: "Water Resevoir", value: 87, min: 0, max: 100, color: Colors.blue, minText: "Empty", maxText: "Full", unit: "%"),
-            Text("Updated " + DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(latestFoodComputerData.timestamp)), style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic))
+            Text(latestFoodComputerData == null || updating == true ? "Updating..." : "Updated " + DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(latestFoodComputerData.timestamp)), style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic)),
+            Padding(padding: EdgeInsets.only(top: 16.0))
           ],
-        )
-      ) : centerIndicator;
-    Widget refreshableStats = Expanded(child:
-      Container(child: RefreshIndicator(color: primary,
-          onRefresh: refreshAll,
-          child: ListView(children: <Widget>[stats]),		// scroll view
-        )
-      )
-    );
+        ),
+
+        //refresher
+        RefreshIndicator(color: primary, onRefresh: refreshAll, child: ListView()),
+      ],
+    ));
 
     Widget homeScreen = Column(children: <Widget>[
       header,
       Divider(height:0.0, color: Colors.black38),
-      refreshableStats,
+      footer,
     ]);
     //TODO turn into component
 
 
     //TODO turn into component
-    Widget foodComputerInfo = foodComputer != null ? Card(
+    Widget foodComputerInfo = foodComputer != null ? Card(elevation: 2.0,
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
         child: Column(
@@ -249,7 +268,7 @@ class HomeState extends State<Home> {
         ),
       )
     ) : centerIndicator;
-    Widget environmentSetting = Card(
+    Widget environmentSetting = Card(elevation: 2.0,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -324,7 +343,7 @@ class HomeState extends State<Home> {
               padding: const EdgeInsets.only(top: 8.0, left: 32.0),
               child: Row(mainAxisSize: MainAxisSize.max, children: <Widget>[
                 Expanded(child: Text("Carbon Dioxide", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0))),
-                Text( "1571.0 ppm", style: TextStyle(fontWeight: FontWeight.bold))
+                Text( "870.0 ppm", style: TextStyle(fontWeight: FontWeight.bold))
               ]),
             ),
             Padding(
@@ -339,7 +358,7 @@ class HomeState extends State<Home> {
         )
       )
     );
-    Widget activeRecipeInfo = Card(
+    Widget activeRecipeInfo = Card(elevation: 2.0,
         child: Padding(
           padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
           child: Column(
@@ -389,18 +408,16 @@ class HomeState extends State<Home> {
         )
     );
     Widget monitorScreen = ListView(
-      padding: const EdgeInsets.only(top: 54.0, left: 14.0, right: 14.0),
-//        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.only(top: 54.0, left: 14.0, right: 14.0, bottom: 20.0),
       children: <Widget>[
-
-        foodComputerInfo,
-        Padding(padding: EdgeInsets.only(top: 14.0)),
-
-        environmentSetting,
-        Padding(padding: EdgeInsets.only(top: 14.0)),
+        Padding(padding: const EdgeInsets.only(bottom: 6.0),
+          child: foodComputerInfo,
+        ),
+        Padding(padding: const EdgeInsets.only(bottom: 6.0),
+          child: environmentSetting,
+        ),
 
         activeRecipe != null ? activeRecipeInfo : Container(),
-        Padding(padding: EdgeInsets.only(top: 14.0)),
       ]);
     //TODO turn into component
 
